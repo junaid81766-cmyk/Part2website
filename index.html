@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Part 2</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #111;
+        }
+
+        header {
+            background: #111;
+            color: white;
+            padding: 16px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .video-box {
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 20px 0 10px;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+<div style="display:flex; gap:10px; margin-top:10px; margin-left:10px; justify-content:center;">
+    <a href="upload.html"
+       style="display:inline-block;padding:10px 20px;background:#111;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
+        📤 Upload Video
+    </a>
+
+    <a href="gallery.html"
+       style="display:inline-block;padding:10px 20px;background:white;color:#111;text-decoration:none;border-radius:6px;font-weight:bold;border:2px solid #111;">
+        🎬 Gallery
+    </a>
+</div>
+    <header>
+        <h2>Part 2 Video</h2>
+    </header>
+
+    <main>
+
+        <div class="video-box">
+            <video controls preload="metadata">
+                <source src="videos/part2.mp4" type="video/mp4">
+                Your browser does not support video playback.
+            </video>
+        </div>
+
+        <h1>Part 2</h1>
+
+        <p>
+            Watch the full Part 2 video here.
+        </p>
+<h1>All Videos</h1>
+
+        <div id="videoGallery"></div>
+
+        <script>
+            async function loadVideos() {
+                const gallery = document.getElementById("videoGallery");
+
+                try {
+                    const response = await fetch("/api/videos");
+                    const videos = await response.json();
+
+                    gallery.innerHTML = "";
+
+                    videos.forEach(video => {
+                        const box = document.createElement("div");
+
+                        box.style.background = "#fff";
+                        box.style.padding = "10px";
+                        box.style.marginBottom = "20px";
+                        box.style.borderRadius = "10px";
+
+                        box.innerHTML = `
+                            <video controls preload="metadata" style="width:100%;">
+                                <source src="${video.url}" type="video/mp4">
+                                Your browser does not support video playback.
+                             </video>
+                             <p>${video.title || video.filename}</p>
+                        `;
+
+                        gallery.appendChild(box);
+                    }); 
+
+                
+            
+                } catch (error) {
+                    gallery.innerHTML = "<p>Unable to load videos.</p>";
+                }
+            }
+
+            loadVideos();
+        </script>
+
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Watch Video</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .video-box {
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            max-height: 75vh;
+        }
+
+        #title {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 18px 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .copy {
+            background: #2980b9;
+        }
+
+        .share {
+            background: #27ae60;
+        }
+
+        .download {
+            background: #8e44ad;
+        }
+
+        .ad-box {
+            margin: 25px 0;
+            width: 100%;
+            min-height: 120px;
+            border: 1px dashed #777;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            #title {
+                font-size: 18px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="ad-box">
+        Advertisement
+    </div>
+
+    <div class="video-box">
+        <video id="videoPlayer" controls playsinline></video>
+    </div>
+
+    <div id="title">Loading...</div>
+
+    <div class="buttons">
+
+        <button class="copy" id="copyBtn">
+            📋 Copy Link
+        </button>
+
+        <button class="share" id="shareBtn">
+            📤 Share
+        </button>
+
+        <button class="download" id="downloadBtn">
+            ⬇️ Download
+        </button>
+
+    </div>
+
+    <div class="ad-box">
+        Advertisement
+    </div>
+
+</div>
+
+<script>
+
+    const params = new URLSearchParams(window.location.search);
+    const filename = params.get("video");
+
+    const videoPlayer = document.getElementById("videoPlayer");
+    const titleElement = document.getElementById("title");
+    const copyBtn = document.getElementById("copyBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    if (!filename) {
+
+        titleElement.textContent = "Video not found";
+
+    } else {
+
+        const videoUrl =
+            window.location.origin +
+            "/videos/" +
+            encodeURIComponent(filename);
+
+        videoPlayer.src = videoUrl;
+
+        downloadBtn.onclick = () => {
+            const link = document.createElement("a");
+            link.href = videoUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        };
+
+        copyBtn.onclick = async () => {
+
+            const pageLink = window.location.href;
+
+            try {
+
+                await navigator.clipboard.writeText(pageLink);
+
+                copyBtn.textContent = "✅ Link Copied!";
+
+                setTimeout(() => {
+                    copyBtn.textContent = "📋 Copy Link";
+                }, 2000);
+
+            } catch (error) {
+
+                alert("Link copy nahi ho paya.");
+
+            }
+        };
+
+        shareBtn.onclick = async () => {
+
+            const pageLink = window.location.href;
+
+            if (navigator.share) {
+
+                try {
+
+                    await navigator.share({
+                        title: "Watch Video",
+                        text: "Watch this video",
+                        url: pageLink
+                    });
+
+                } catch (error) {
+                    console.log(error);
+                }
+
+            } else {
+
+                await navigator.clipboard.writeText(pageLink);
+
+                alert("Link copied!");
+
+            }
+        };
+
+        fetch("/api/videos")
+            .then(response => response.json())
+            .then(videos => {
+
+                const video = videos.find(
+                    item => item.filename === filename
+                );
+
+                if (video) {
+                    titleElement.textContent = video.title;
+                } else {
+                    titleElement.textContent = filename;
+                }
+
+            })
+            .catch(() => {
+                titleElement.textContent = filename;
+            });
+    }
+
+</script>
+
+</body>
+</html>
